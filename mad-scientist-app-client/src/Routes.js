@@ -13,5 +13,3 @@ export default ({ childProps }) =>
     <AppliedRoute path="/signup" exact component={Signup} props={childProps} />
     <Route component={NotFound} />
   </Switch>;
-
-

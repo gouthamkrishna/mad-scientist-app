@@ -1,14 +1,17 @@
 import React, { Component } from "react";
-import { PageHeader, ListGroup, ListGroupItem } from "react-bootstrap";
+import { PageHeader} from "react-bootstrap";
 import "./Home.css";
 import { invokeApig } from "../libs/awsLib";
-import { Table, Button } from 'semantic-ui-react';
+import { Table, Button, Modal } from 'semantic-ui-react';
+import LoaderButton from "../components/LoaderButton";
 
 export default class Home extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
+      modalItem: {},
+      open: false,
       isLoading: true,
       favs: [],
       coins: [],
@@ -16,24 +19,38 @@ export default class Home extends Component {
     };
   }
 
-  async componentDidMount() {
+  async componentWillMount() {
     if (!this.props.isAuthenticated) {
+      this.fetchLander("https://api.coinmarketcap.com/v1/ticker/");
       return;
     }
 
     try {
       const results = await this.favs();
-      this.fetchFirst("https://api.coinmarketcap.com/v1/ticker/");
       this.setState({ favs: results });
+      this.fetchLoggedIn("https://api.coinmarketcap.com/v1/ticker/");
     } catch (e) {
       alert(e);
     }
 
-    this.setState({ isLoading: false });
   }
 
-  fetchFirst (url) {
+  fetchLander (url) {
     var home = this;
+
+    if(url) {
+      fetch(url).then(function (response){
+        return response.json();
+      }).then(function (result) {
+        home.setState({ coins: result});
+      });
+    }
+
+  }
+
+  fetchLoggedIn (url) {
+    var home = this;
+
     if (url) {
       fetch(url).then(function (response){
         return response.json();
@@ -51,49 +68,21 @@ export default class Home extends Component {
             }
           }
           home.setState({
-            listFavs: mArray
+            listFavs: mArray,
+            isLoading: false
           })
         });
       });
     }
-
   }
 
   favs() {
     return invokeApig({ path: "/coinlist" });
+
   }
 
-  renderFavList(favs) {
-    return favs.map(
-      (coin,i) =>
-          <Table.Row>
-            <Table.Cell>
-               {coin.rank}
-            </Table.Cell>
-            <Table.Cell>
-               {coin.name}
-            </Table.Cell>
-            <Table.Cell>
-               {coin.symbol}
-            </Table.Cell>
-            <Table.Cell>
-               {coin.price_usd}
-            </Table.Cell>
-            <Table.Cell>
-               {coin.price_btc}
-            </Table.Cell>
-            <Table.Cell>
-               {coin.percent_change_24h}
-            </Table.Cell>
-            <Table.Cell>
-             <center>
-              <Button onClick={this.handleRemoveFav.bind(this, coin)}
-                color='green'>Remove Fav</Button>
-            </center>
-            </Table.Cell>
-          </Table.Row>
-    );
-  }
+  showModal = modalItem => () => this.setState({ modalItem: modalItem, open: true })
+  closeModal = () => this.setState({ open: false })
 
   handleAddFav(coin) {
     invokeApig ({
@@ -114,8 +103,46 @@ export default class Home extends Component {
       method: "DELETE"
     });
     var mArray = this.state.listFavs;
-    mArray = mArray.filter(item => item != coin)
+    mArray = mArray.filter(item => item !== coin)
     this.setState({ listFavs: mArray });
+  }
+
+  renderFavList(favs) {
+    return favs.map(
+      (coin,i) =>
+      <Table.Row>
+        <Table.Cell>
+          {coin.rank}
+        </Table.Cell>
+        <Table.Cell>
+          {coin.name}
+        </Table.Cell>
+        <Table.Cell>
+          {coin.symbol}
+        </Table.Cell>
+        <Table.Cell>
+          {coin.price_usd}
+        </Table.Cell>
+        <Table.Cell>
+          {coin.price_btc}
+        </Table.Cell>
+        <Table.Cell>
+          {coin.percent_change_24h}
+        </Table.Cell>
+        <Table.Cell>
+          <center>
+            <Button onClick={this.showModal(coin)}
+              color='blue'>View</Button>
+          </center>
+        </Table.Cell>
+        <Table.Cell>
+          <center>
+            <Button onClick={this.handleRemoveFav.bind(this, coin)}
+              color='green'>Remove Fav</Button>
+          </center>
+        </Table.Cell>
+      </Table.Row>
+    );
   }
 
   renderCoinList(coins) {
@@ -151,7 +178,7 @@ export default class Home extends Component {
             <Table.Cell>
                {coin.percent_change_24h}
             </Table.Cell>
-            <Table.Cell>
+            <Table.Cell hidden={!this.props.isAuthenticated}>
              <center>
               <Button disabled={isDisabled}
                 onClick={this.handleAddFav.bind(this, coin)}
@@ -167,22 +194,36 @@ export default class Home extends Component {
     return (
       <div className="favs">
         <PageHeader>Your favourite coins</PageHeader>
-        <Table inverted>
-          <Table.Header>
-            <Table.Row>
-              <Table.HeaderCell>Rank</Table.HeaderCell>
-              <Table.HeaderCell>Name</Table.HeaderCell>
-              <Table.HeaderCell>Symbol</Table.HeaderCell>
-              <Table.HeaderCell>Price USD</Table.HeaderCell>
-              <Table.HeaderCell>Price BTC</Table.HeaderCell>
-              <Table.HeaderCell>% Change in 24h</Table.HeaderCell>
-              <Table.HeaderCell>Add to Favourites</Table.HeaderCell>
-            </Table.Row>
-          </Table.Header>
-              <Table.Body>
-          {!this.state.isLoading && this.props.isFavList && this.renderFavList(this.state.listFavs)}
-          </Table.Body>
-    </Table>
+        {this.renderModal()}
+        {this.state.isLoading ?
+          <center>
+            <LoaderButton
+        	    block
+        	    bsSize="large"
+        	    disabled={this.state.isLoading}
+        	    isLoading={this.state.isLoading}
+        	    text="Loading"
+        	    loadingText="Loading your favs..."
+        	  />
+          </center>
+        : <Table inverted>
+            <Table.Header>
+              <Table.Row>
+                <Table.HeaderCell>Rank</Table.HeaderCell>
+                <Table.HeaderCell>Name</Table.HeaderCell>
+                <Table.HeaderCell>Symbol</Table.HeaderCell>
+                <Table.HeaderCell>Price USD</Table.HeaderCell>
+                <Table.HeaderCell>Price BTC</Table.HeaderCell>
+                <Table.HeaderCell>% Change in 24h</Table.HeaderCell>
+                <Table.HeaderCell>View Details</Table.HeaderCell>
+                <Table.HeaderCell>Remove Favourites</Table.HeaderCell>
+              </Table.Row>
+            </Table.Header>
+                <Table.Body>
+            {this.props.isFavList && this.renderFavList(this.state.listFavs)}
+            </Table.Body>
+          </Table>
+        }
       </div>
     );
   }
@@ -200,7 +241,7 @@ export default class Home extends Component {
                 <Table.HeaderCell>Price USD</Table.HeaderCell>
                 <Table.HeaderCell>Price BTC</Table.HeaderCell>
                 <Table.HeaderCell>% Change in 24h</Table.HeaderCell>
-                <Table.HeaderCell>Add to Favourites</Table.HeaderCell>
+                <Table.HeaderCell hidden={!this.props.isAuthenticated}>Add to Favourites</Table.HeaderCell>
               </Table.Row>
             </Table.Header>
                 <Table.Body>
@@ -217,6 +258,31 @@ export default class Home extends Component {
         {this.props.isAuthenticated ? (this.props.isFavList ? this.renderFavs()
           : this.renderLander()) : this.renderLander()}
       </div>
+    );
+  }
+
+  renderModal() {
+    console.log("modal");
+    return (
+      <Modal size={'small'} open={this.state.open} onClose={this.closeModal}>
+        <Modal.Header>
+          this.state.modalItem.name
+        </Modal.Header>
+        <Modal.Content>
+          <Table color={'red'}>
+            <Table.Body>
+              <Table.Row>
+                <Table.Cell>this.state.modalItem.id</Table.Cell>
+              </Table.Row>
+            </Table.Body>
+          </Table>
+        </Modal.Content>
+        <Modal.Actions>
+          <Button onClick={this.closeModal}>
+            Done
+          </Button>
+        </Modal.Actions>
+      </Modal>
     );
   }
 }

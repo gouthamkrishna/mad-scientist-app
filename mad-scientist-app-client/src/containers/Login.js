@@ -30,7 +30,7 @@ export default class Login extends Component {
       });
     }
 
-    handleSubmit = async event => {
+  handleSubmit = async event => {
     event.preventDefault();
 
     this.setState({ isLoading: true });
@@ -66,15 +66,15 @@ export default class Login extends Component {
               type="password"
             />
           </FormGroup>
-	  <LoaderButton
-	    block
-	    bsSize="large"
-	    disabled={!this.validateForm()}
-	    type="submit"
-	    isLoading={this.state.isLoading}
-	    text="Login"
-	    loadingText="Logging in…"
-	  />
+      	  <LoaderButton
+      	    block
+      	    bsSize="large"
+      	    disabled={!this.validateForm()}
+      	    type="submit"
+      	    isLoading={this.state.isLoading}
+      	    text="Login"
+      	    loadingText="Logging in…"
+      	  />
         </form>
       </div>
     );
@@ -97,5 +97,3 @@ export default class Login extends Component {
     );
   }
 }
-
-
