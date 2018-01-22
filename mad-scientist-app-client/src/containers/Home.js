@@ -1,8 +1,7 @@
 import React, { Component } from "react";
-import { PageHeader} from "react-bootstrap";
 import "./Home.css";
 import { invokeApig } from "../libs/awsLib";
-import { Table, Button, Modal } from 'semantic-ui-react';
+import { Table, Button, PageHeader, Modal } from "react-bootstrap"
 import LoaderButton from "../components/LoaderButton";
 
 export default class Home extends Component {
@@ -10,7 +9,7 @@ export default class Home extends Component {
     super(props);
 
     this.state = {
-      modalItem: {},
+      modalItem: [],
       open: false,
       isLoading: true,
       favs: [],
@@ -55,7 +54,7 @@ export default class Home extends Component {
       fetch(url).then(function (response){
         return response.json();
       }).then(function (result) {
-        home.setState({ coins: result},function() {
+        home.setState({ coins: result }, function() {
           var mArray = home.state.listFavs;
           var mFav = home.state.favs;
           var mCoin = home.state.coins;
@@ -81,9 +80,6 @@ export default class Home extends Component {
 
   }
 
-  showModal = modalItem => () => this.setState({ modalItem: modalItem, open: true })
-  closeModal = () => this.setState({ open: false })
-
   handleAddFav(coin) {
     invokeApig ({
       path: "/coinlist",
@@ -107,41 +103,35 @@ export default class Home extends Component {
     this.setState({ listFavs: mArray });
   }
 
+  showModal = modalItem => () => {
+    var mArray = Object.values(modalItem);
+    this.setState({ modalItem: mArray, open: true })
+  }
+  closeModal = () => this.setState({ open: false })
+
   renderFavList(favs) {
     return favs.map(
       (coin,i) =>
-      <Table.Row>
-        <Table.Cell>
-          {coin.rank}
-        </Table.Cell>
-        <Table.Cell>
-          {coin.name}
-        </Table.Cell>
-        <Table.Cell>
-          {coin.symbol}
-        </Table.Cell>
-        <Table.Cell>
-          {coin.price_usd}
-        </Table.Cell>
-        <Table.Cell>
-          {coin.price_btc}
-        </Table.Cell>
-        <Table.Cell>
-          {coin.percent_change_24h}
-        </Table.Cell>
-        <Table.Cell>
+      <tr>
+        <td>{coin.rank}</td>
+        <td>{coin.name}</td>
+        <td>{coin.symbol}</td>
+        <td>{coin.price_usd}</td>
+        <td>{coin.price_btc}</td>
+        <td>{coin.percent_change_24h+"%"}</td>
+        <td>
           <center>
             <Button onClick={this.showModal(coin)}
               color='blue'>View</Button>
           </center>
-        </Table.Cell>
-        <Table.Cell>
+        </td>
+        <td>
           <center>
             <Button onClick={this.handleRemoveFav.bind(this, coin)}
               color='green'>Remove Fav</Button>
           </center>
-        </Table.Cell>
-      </Table.Row>
+        </td>
+      </tr>
     );
   }
 
@@ -159,33 +149,21 @@ export default class Home extends Component {
         }
       }
       return (
-          <Table.Row>
-            <Table.Cell>
-               {coin.rank}
-            </Table.Cell>
-            <Table.Cell>
-               {coin.name}
-            </Table.Cell>
-            <Table.Cell>
-               {coin.symbol}
-            </Table.Cell>
-            <Table.Cell>
-               {coin.price_usd}
-            </Table.Cell>
-            <Table.Cell>
-               {coin.price_btc}
-            </Table.Cell>
-            <Table.Cell>
-               {coin.percent_change_24h}
-            </Table.Cell>
-            <Table.Cell hidden={!this.props.isAuthenticated}>
+          <tr>
+            <td>{coin.rank}</td>
+            <td>{coin.name}</td>
+            <td>{coin.symbol}</td>
+            <td>{coin.price_usd}</td>
+            <td>{coin.price_btc}</td>
+            <td>{coin.percent_change_24h+"%"}</td>
+            <td hidden={!this.props.isAuthenticated}>
              <center>
               <Button disabled={isDisabled}
                 onClick={this.handleAddFav.bind(this, coin)}
                 color='green'>Add Fav</Button>
             </center>
-            </Table.Cell>
-          </Table.Row>
+            </td>
+          </tr>
         );
     });
   }
@@ -193,8 +171,7 @@ export default class Home extends Component {
   renderFavs() {
     return (
       <div className="favs">
-        <PageHeader>Your favourite coins</PageHeader>
-        {this.renderModal()}
+        <PageHeader size='huge'>Your favourite coins</PageHeader>
         {this.state.isLoading ?
           <center>
             <LoaderButton
@@ -206,24 +183,25 @@ export default class Home extends Component {
         	    loadingText="Loading your favs..."
         	  />
           </center>
-        : <Table inverted>
-            <Table.Header>
-              <Table.Row>
-                <Table.HeaderCell>Rank</Table.HeaderCell>
-                <Table.HeaderCell>Name</Table.HeaderCell>
-                <Table.HeaderCell>Symbol</Table.HeaderCell>
-                <Table.HeaderCell>Price USD</Table.HeaderCell>
-                <Table.HeaderCell>Price BTC</Table.HeaderCell>
-                <Table.HeaderCell>% Change in 24h</Table.HeaderCell>
-                <Table.HeaderCell>View Details</Table.HeaderCell>
-                <Table.HeaderCell>Remove Favourites</Table.HeaderCell>
-              </Table.Row>
-            </Table.Header>
-                <Table.Body>
+        : <Table responsive>
+            <thead>
+              <tr>
+                <th>Rank</th>
+                <th>Name</th>
+                <th>Symbol</th>
+                <th>Price USD</th>
+                <th>Price BTC</th>
+                <th>Change in 24h</th>
+                <th>View Details</th>
+                <th>Remove Favourites</th>
+              </tr>
+            </thead>
+                <tbody>
             {this.props.isFavList && this.renderFavList(this.state.listFavs)}
-            </Table.Body>
+            </tbody>
           </Table>
         }
+        {this.renderModal()}
       </div>
     );
   }
@@ -231,22 +209,22 @@ export default class Home extends Component {
   renderLander() {
     return (
       <div className="coins">
-        <PageHeader>List of all coins</PageHeader>
-          <Table inverted>
-            <Table.Header>
-              <Table.Row>
-                <Table.HeaderCell>Rank</Table.HeaderCell>
-                <Table.HeaderCell>Name</Table.HeaderCell>
-                <Table.HeaderCell>Symbol</Table.HeaderCell>
-                <Table.HeaderCell>Price USD</Table.HeaderCell>
-                <Table.HeaderCell>Price BTC</Table.HeaderCell>
-                <Table.HeaderCell>% Change in 24h</Table.HeaderCell>
-                <Table.HeaderCell hidden={!this.props.isAuthenticated}>Add to Favourites</Table.HeaderCell>
-              </Table.Row>
-            </Table.Header>
-                <Table.Body>
+        <PageHeader size='huge'>List of all coins</PageHeader>
+          <Table responsive>
+            <thead>
+              <tr>
+                <th>Rank</th>
+                <th>Name</th>
+                <th>Symbol</th>
+                <th>Price USD</th>
+                <th>Price BTC</th>
+                <th>Change in 24h</th>
+                <th hidden={!this.props.isAuthenticated}>Add to Favourites</th>
+              </tr>
+            </thead>
+                <tbody>
                   {!this.props.isFavList && this.renderCoinList(this.state.coins)}
-                </Table.Body>
+                </tbody>
           </Table>
       </div>
     );
@@ -262,26 +240,79 @@ export default class Home extends Component {
   }
 
   renderModal() {
-    console.log("modal");
+    var mArray = this.state.modalItem;
     return (
-      <Modal size={'small'} open={this.state.open} onClose={this.closeModal}>
+      <Modal size={'small'} show={this.state.open} onHide={this.closeModal}>
         <Modal.Header>
-          this.state.modalItem.name
+          <Modal.Title>{mArray[1]}</Modal.Title>
         </Modal.Header>
-        <Modal.Content>
-          <Table color={'red'}>
-            <Table.Body>
-              <Table.Row>
-                <Table.Cell>this.state.modalItem.id</Table.Cell>
-              </Table.Row>
-            </Table.Body>
+        <Modal.Body className="modalbody">
+          <Table responsive>
+            <tbody  style={{border: 'hidden'}}>
+              <tr>
+                <td>Rank</td>
+                <td>:</td>
+                <td >{mArray[3]}</td>
+                <td>Symbol</td>
+                <td>:</td>
+                <td>{mArray[2]}</td>
+              </tr>
+              <tr>
+                <td>Name</td>
+                <td>:</td>
+                <td >{mArray[1]}</td>
+                <td>Price USD</td>
+                <td>:</td>
+                <td>{mArray[4]}</td>
+              </tr>
+              <tr>
+                <td>Price BTC</td>
+                <td>:</td>
+                <td >{mArray[5]}</td>
+                <td>24h Volume</td>
+                <td>:</td>
+                <td>{mArray[6]}</td>
+              </tr>
+              <tr>
+                <td>Market Cap</td>
+                <td>:</td>
+                <td >{mArray[7]}</td>
+                <td>Available Supply</td>
+                <td>:</td>
+                <td>{mArray[8]}</td>
+              </tr>
+              <tr>
+                <td>Total Supply</td>
+                <td>:</td>
+                <td >{mArray[9]}</td>
+                <td>Max Supply</td>
+                <td>:</td>
+                <td>{mArray[10]}</td>
+              </tr>
+              <tr>
+                <td>Change 1H</td>
+                <td>:</td>
+                <td >{mArray[11]+"%"}</td>
+                <td>Chande 1D</td>
+                <td>:</td>
+                <td>{mArray[12]+"%"}</td>
+              </tr>
+              <tr>
+                <td>Change 1W</td>
+                <td>:</td>
+                <td >{mArray[13]+"%"}</td>
+                <td>Last Updated</td>
+                <td>:</td>
+                <td>{new Date(mArray[14]*1000).toString().substring(0,24)}</td>
+              </tr>
+            </tbody>
           </Table>
-        </Modal.Content>
-        <Modal.Actions>
+        </Modal.Body>
+        <Modal.Footer>
           <Button onClick={this.closeModal}>
             Done
           </Button>
-        </Modal.Actions>
+        </Modal.Footer>
       </Modal>
     );
   }
