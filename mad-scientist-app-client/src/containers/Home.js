@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import "./Home.css";
 import { invokeApig } from "../libs/awsLib";
-import { Table, Button, PageHeader, Modal } from "react-bootstrap"
+import { Table, Button, Modal } from "react-bootstrap"
 import LoaderButton from "../components/LoaderButton";
 
 export default class Home extends Component {
@@ -119,17 +119,11 @@ export default class Home extends Component {
         <td>{coin.price_usd}</td>
         <td>{coin.price_btc}</td>
         <td>{coin.percent_change_24h+"%"}</td>
-        <td>
-          <center>
-            <Button onClick={this.showModal(coin)}
-              color='blue'>View</Button>
-          </center>
+        <td className="cellstyle">
+            <Button className="buttonstyle" onClick={this.showModal(coin)}>View</Button>
         </td>
-        <td>
-          <center>
-            <Button onClick={this.handleRemoveFav.bind(this, coin)}
-              color='green'>Remove Fav</Button>
-          </center>
+        <td className="cellstyle">
+            <Button className="buttonstyle" onClick={this.handleRemoveFav.bind(this, coin)}>Remove Fav</Button>
         </td>
       </tr>
     );
@@ -156,12 +150,10 @@ export default class Home extends Component {
             <td>{coin.price_usd}</td>
             <td>{coin.price_btc}</td>
             <td>{coin.percent_change_24h+"%"}</td>
-            <td hidden={!this.props.isAuthenticated}>
-             <center>
-              <Button disabled={isDisabled}
+            <td className="cellstyle" hidden={!this.props.isAuthenticated}>
+              <Button className="buttonstyle" disabled={isDisabled}
                 onClick={this.handleAddFav.bind(this, coin)}
                 color='green'>Add Fav</Button>
-            </center>
             </td>
           </tr>
         );
@@ -171,10 +163,10 @@ export default class Home extends Component {
   renderFavs() {
     return (
       <div className="favs">
-        <PageHeader size='huge'>Your favourite coins</PageHeader>
         {this.state.isLoading ?
           <center>
             <LoaderButton
+              className="lbuttonstyle"
         	    block
         	    bsSize="large"
         	    disabled={this.state.isLoading}
@@ -209,7 +201,6 @@ export default class Home extends Component {
   renderLander() {
     return (
       <div className="coins">
-        <PageHeader size='huge'>List of all coins</PageHeader>
           <Table responsive>
             <thead>
               <tr>
@@ -242,7 +233,7 @@ export default class Home extends Component {
   renderModal() {
     var mArray = this.state.modalItem;
     return (
-      <Modal size={'small'} show={this.state.open} onHide={this.closeModal}>
+      <Modal className="modalcontainer" size={'small'} show={this.state.open} onHide={this.closeModal}>
         <Modal.Header>
           <Modal.Title>{mArray[1]}</Modal.Title>
         </Modal.Header>
@@ -309,7 +300,7 @@ export default class Home extends Component {
           </Table>
         </Modal.Body>
         <Modal.Footer>
-          <Button onClick={this.closeModal}>
+          <Button className="buttonstyle" onClick={this.closeModal}>
             Done
           </Button>
         </Modal.Footer>

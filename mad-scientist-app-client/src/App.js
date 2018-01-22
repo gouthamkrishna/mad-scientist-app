@@ -58,7 +58,7 @@ class App extends Component {
         <Navbar fluid collapseOnSelect>
           <Navbar.Header>
             <Navbar.Brand>
-              <Link to="/">Mad Scientist</Link>
+              <Link to="/">Mad Scientist - A simple coin-tracking application</Link>
             </Navbar.Brand>
             <Navbar.Toggle />
           </Navbar.Header>

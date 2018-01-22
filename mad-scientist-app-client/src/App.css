@@ -1,9 +1,20 @@
 .App {
   margin-top: 15px;
+  background-color: #d1d2e2;
+  border-radius: 10px;
+  padding-top: 10px;
+  padding-bottom: 10px;
 }
 
 .App .navbar-brand {
   font-weight: bold;
 }
 
+h2 {
+  font-family: "Open Sans";
+}
 
+.navbar {
+  border: hidden;
+  background-color: #c2c3d8;
+}

@@ -7,6 +7,8 @@
     margin: 0 auto;
     max-width: 320px;
   }
+
+  .lbuttonstyle {
+    background-color: #9596bb;
+  }
 }
-
-
