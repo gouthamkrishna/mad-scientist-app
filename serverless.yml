@@ -49,11 +49,3 @@ functions:
           method: delete
           cors: true
           authorizer: aws_iam
-  getFav:
-    handler: getFav.main
-    events:
-      - http:
-          path: coinlist/{id}
-          method: get
-          cors: true
-          authorizer: aws_iam
