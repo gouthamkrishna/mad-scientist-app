@@ -35,6 +35,17 @@ export default class Signup extends Component {
     );
   }
 
+  validateEmail(email) {
+      var re = /\S+@\S+\.\S+/;
+      return re.test(email);
+  }
+
+  validatePassword(password) {
+    var re = /^(?=.*[\d])(?=.*[A-Z])(?=.*[a-z])(?=.*[!@#$%^&*])[\w!@#$%^&*]{8,}$/;
+    var regexp = /^\S*$/;
+    return (re.test(password) && regexp.test(password));
+  }
+
   validateConfirmationForm() {
     return this.state.confirmationCode.length > 0;
   }
@@ -47,6 +58,15 @@ export default class Signup extends Component {
 
   handleSubmit = async event => {
     event.preventDefault();
+
+    if (!this.validateEmail(this.state.email)) {
+      alert("Invalid email");
+      return;
+    }
+    if (!this.validatePassword(this.state.password)) {
+      alert("Invalid password. \n -Password must be minimum 8 char long\n -should contain lowecase, uppercase, number and a special char !");
+      return;
+    }
 
     this.setState({ isLoading: true });
 
@@ -205,5 +225,3 @@ export default class Signup extends Component {
     );
   }
 }
-
-

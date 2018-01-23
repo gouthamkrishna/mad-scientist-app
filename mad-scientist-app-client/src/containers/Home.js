@@ -12,6 +12,7 @@ export default class Home extends Component {
       modalItem: [],
       open: false,
       isLoading: true,
+      isLanderLoading: true,
       favs: [],
       coins: [],
       listFavs: []
@@ -41,7 +42,10 @@ export default class Home extends Component {
       fetch(url).then(function (response){
         return response.json();
       }).then(function (result) {
-        home.setState({ coins: result});
+        home.setState({
+          coins: result,
+          isLanderLoading: false
+        });
       });
     }
 
